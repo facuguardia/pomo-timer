@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: "center",
     marginTop: 10,
+    padding: 20,
   },
   buttonTitle: {
     fontSize: 30,
