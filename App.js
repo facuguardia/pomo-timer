@@ -13,48 +13,49 @@ import { Audio } from "expo-av";
 import Header from "./src/components/Header";
 import Timer from "./src/components/Timer";
 
-const colors = ["#F7DC6F", "#A2D9CE", "#D7BDE2"];
+const colors = ["#689550", "#ef9421", "#5482ab"];
 
 export default function App() {
   const [isWorking, setIsWorking] = useState(false);
   const [time, setTime] = useState(25 * 60);
   const [currentTime, setCurrentTime] = useState("POMO" | "SHORT" | "BREAK");
-  const [isAtive, setIsAtive] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     let interval = null;
-    if (isAtive) {
+
+    if (isActive) {
       interval = setInterval(() => {
-        setTime((prevTime) => {
-          if (prevTime === 0) {
-            playAlarm();
-            setIsAtive(false);
-            // Establecer el tiempo inicial nuevamente
-            return 5 * 60;
-          }
-          return prevTime - 1;
-        });
+        setTime(time - 1);
       }, 10);
     } else {
       clearInterval(interval);
     }
+
+    if (time === 0) {
+      playAlarm();
+      setIsActive(false);
+      setIsWorking((prev) => !prev);
+      setTime(isWorking ? 300 : 1500);
+    }
+
     return () => clearInterval(interval);
-  }, [isAtive, time]);
+  }, [isActive, time]);
 
   function handleStart() {
     playSound();
-    setIsAtive(!isAtive);
+    setIsActive(!isActive);
   }
 
   async function playSound() {
-    const {sound} = await Audio.Sound.createAsync(
+    const { sound } = await Audio.Sound.createAsync(
       require("./assets/click.mp3")
     );
     await sound.playAsync();
   }
 
   async function playAlarm() {
-    const {sound} = await Audio.Sound.createAsync(
+    const { sound } = await Audio.Sound.createAsync(
       require("./assets/alarm.mp3")
     );
     await sound.playAsync();
@@ -86,9 +87,8 @@ export default function App() {
         />
 
         <TouchableOpacity style={styles.button} onPress={handleStart}>
-          <Text style={styles.buttonTitle}>{isAtive ? "STOP" : "START"}</Text>
+          <Text style={styles.buttonTitle}>{isActive ? "STOP" : "START"}</Text>
         </TouchableOpacity>
-
         <StatusBar style="auto" />
       </View>
     </SafeAreaView>
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: 10,
+    paddingHorizontal: 10,
     fontSize: 30,
     fontWeight: "bold",
   },
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 25,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
     padding: 20,
   },
   buttonTitle: {
